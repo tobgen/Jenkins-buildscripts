@@ -1,0 +1,21 @@
+#!<%= @usershell %>
+
+# managed by puppet and erb
+set -e
+echo Entering $WORKSPACE
+cd $WORKSPACE
+
+echo "Starting git-cleaing"
+if [ -f README.md ]
+ then
+git clean -fdx
+fi 
+
+export CXX=<%=@CXXGCC %>
+./configure --enable-extras=<%= @configureextras %> <%= @configureoptions %>
+./configure --disable-interactive
+<% if @processorcount == nil %> <% @processorcount='4' %> <% end %>
+echo "Starting MAKE-run"
+<%= @makeversion %> -j<%=  @processorcount %> V=1
+<%= @makeversion %> install
+git clean -fdx

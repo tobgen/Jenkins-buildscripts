@@ -1,0 +1,25 @@
+#!<%= @usershell %>
+
+# managed by puppet and erb
+<% if @osfamily == "Solaris" || @lsbmajdistrelease == "5" || @lsbmajdistrelease == "14" || @operatingsystemmajrelease == "6" || @operatingsystemmajrelease == "7" || @osfamily == "OpenBSD" %>
+<%= "echo clang is not used on this platform"  %>
+<% else %>
+set -e
+echo Entering $WORKSPACE
+cd $WORKSPACE
+
+echo "Starting git-cleaing"
+if [ -f README.md ]
+ then
+git clean -fdx
+fi 
+
+export CXX=<%=@CXXCLANG %> 
+./configure --enable-extras=m_regex_pcre.cpp,m_regex_tre.cpp,m_ssl_gnutls.cpp,m_ssl_openssl.cpp <%= @clangoption %> 
+./configure --disable-interactive
+<% if @processorcount == nil %> <% @processorcount='4' %> <% end %>
+echo "Starting MAKE-run"
+<%= @makeversion %> -j<%=  @processorcount %> V=1
+<%= @makeversion %> install
+git clean -fdx
+<% end %>
